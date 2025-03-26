@@ -1,3 +1,5 @@
+import {AuthenticationComponent} from '@loopback/authentication';
+import {JWTAuthenticationComponent} from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {
@@ -37,7 +39,8 @@ export class RobocloudBackendApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
-
+    this.component(AuthenticationComponent);
+    this.component(JWTAuthenticationComponent);
     //Socket io config
     this.httpServer = http.createServer(this.requestHandler);
     this.socketIoServer = new SocketIoServer(this, this.httpServer);

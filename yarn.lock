@@ -293,6 +293,28 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@loopback/authentication-jwt@^0.15.12":
+  version "0.15.12"
+  resolved "https://registry.yarnpkg.com/@loopback/authentication-jwt/-/authentication-jwt-0.15.12.tgz#5d17074489cc467e3d6f5abebb12a6278e12c407"
+  integrity sha512-WnrNlXgbPjrRdfJnwqvcYHPGZKdRQiZPO7KOipI5PyrXE1Hn6lidiQ0XiwnU3zm+XIrm3bQGpxeoqKEeYGX4Jw==
+  dependencies:
+    "@loopback/security" "^0.11.12"
+    "@types/bcryptjs" "2.4.6"
+    bcryptjs "^2.4.3"
+    debug "^4.4.0"
+    jsonwebtoken "^9.0.2"
+
+"@loopback/authentication@^11.0.12":
+  version "11.0.12"
+  resolved "https://registry.yarnpkg.com/@loopback/authentication/-/authentication-11.0.12.tgz#cb4aee17835f0137e6242942e3ae8d29f61b38d9"
+  integrity sha512-2qvGp0vn2QhWYRCPMA1qoMa5DWVSEfXWQ5urI7eiJI+yM9xLeVa1KLZ7gHVZjUMNR5RU6FMwrWAjQPrwwXXybA==
+  dependencies:
+    "@loopback/security" "^0.11.12"
+    "@types/express" "^4.17.21"
+    "@types/lodash" "^4.17.16"
+    lodash "^4.17.21"
+    tslib "^2.8.1"
+
 "@loopback/boot@^7.0.7":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@loopback/boot/-/boot-7.0.12.tgz#d1771a8bc01f35db279942f2bfd527c4e2b43ad9"
@@ -492,6 +514,14 @@
     type-is "^1.6.18"
     validator "^13.12.0"
 
+"@loopback/security@^0.11.12":
+  version "0.11.12"
+  resolved "https://registry.yarnpkg.com/@loopback/security/-/security-0.11.12.tgz#8f953728cf4342a680b534012e79ae1ef716257d"
+  integrity sha512-gEz0MI+/plW2fS28UwVKWD9jOsgFLcZJJDrGtoTNLhdViWje5F8tKa3UY5xhZgTYW+Wf0WOAxhMtl4hFI/h6mA==
+  dependencies:
+    debug "^4.4.0"
+    tslib "^2.8.1"
+
 "@loopback/service-proxy@^7.0.12", "@loopback/service-proxy@^7.0.7":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@loopback/service-proxy/-/service-proxy-7.0.12.tgz#52fc93e67c8633c01cc33db614786b2d95314f92"
@@ -618,6 +648,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/bcryptjs@2.4.6":
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.6.tgz#2b92e3c2121c66eba3901e64faf8bb922ec291fa"
+  integrity sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==
+
 "@types/body-parser@*", "@types/body-parser@^1.19.5":
   version "1.19.5"
   resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.19.5.tgz#04ce9a3b677dc8bd681a17da1ab9835dc9d3ede4"
@@ -713,7 +748,7 @@
     "@types/ms" "*"
     "@types/node" "*"
 
-"@types/lodash@^4.14.195":
+"@types/lodash@^4.14.195", "@types/lodash@^4.17.16":
   version "4.17.16"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.16.tgz#94ae78fab4a38d73086e962d0b65c30d816bfb0a"
   integrity sha512-HX7Em5NYQAXKW+1T+FiuG27NGwzJfCX3s1GjOa7ujxZa52kjJLOr4FUxT+giF6Tgxv1e+/czV/iTtBw27WTU9g==
@@ -1142,6 +1177,11 @@ bcrypt@^5.1.1:
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0.11"
     node-addon-api "^5.0.0"
+
+bcryptjs@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/bcryptjs/-/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
+  integrity sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==
 
 binary-extensions@^2.0.0:
   version "2.3.0"

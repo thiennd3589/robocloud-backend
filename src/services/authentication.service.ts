@@ -1,43 +1,61 @@
-import { BindingScope, Getter, injectable } from "@loopback/core";
-import { repository } from "@loopback/repository";
-import { UserRepository } from "../repositories/user.repository";
-import { UserCredentialRepository } from "../repositories/user-credential.repository";
-import { HttpErrors } from "@loopback/rest";
-import bcrypt from "bcrypt";
-import { Validation } from "../lib/validation";
-import jwt from "jsonwebtoken";
-import { pick } from "lodash";
+import {BindingScope, Getter, inject, injectable} from '@loopback/core';
+import {repository} from '@loopback/repository';
+import {UserRepository} from '../repositories/user.repository';
+import {UserCredentialRepository} from '../repositories/user-credential.repository';
+import {HttpErrors} from '@loopback/rest';
+import bcrypt from 'bcrypt';
+import {Validation} from '../lib/validation';
+import jwt from 'jsonwebtoken';
+import {pick} from 'lodash';
+import {
+  MyUserService,
+  TokenServiceBindings,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
+import {TokenService} from '@loopback/authentication';
+import {SecurityBindings, UserProfile} from '@loopback/security';
+import {AuthenticationUserService} from './authentication-user.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AuthenticationService {
   private readonly saltRounds = 11;
   constructor(
-    @repository.getter(UserRepository) 
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: TokenService,
+    @inject(UserServiceBindings.USER_SERVICE)
+    public userService: AuthenticationUserService,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user: UserProfile,
+    @repository.getter(UserRepository)
     private userReposiptoryGetter: Getter<UserRepository>,
-    @repository.getter(UserCredentialRepository) 
-    private userCredentialRepositoryGetter: Getter<UserCredentialRepository>
-  ){}
+    @repository.getter(UserCredentialRepository)
+    private userCredentialRepositoryGetter: Getter<UserCredentialRepository>,
+  ) {}
 
-  async registerUser(data: {fullName: string, email: string, password: string}) {
+  async registerUser(data: {
+    fullName: string;
+    email: string;
+    password: string;
+  }) {
     const {email, fullName, password} = data;
 
     const isEmailValid = Validation.emailValidation(email);
-    if (!isEmailValid) throw HttpErrors.BadRequest("emailInvalid");
+    if (!isEmailValid) throw HttpErrors.BadRequest('emailInvalid');
 
     const [userRepo, userCredentialRepo] = await Promise.all([
       this.userReposiptoryGetter(),
-      this.userCredentialRepositoryGetter()
-    ])
+      this.userCredentialRepositoryGetter(),
+    ]);
 
     const user = await userRepo.create({
       email,
       fullName,
-    })
+    });
 
     await userCredentialRepo.create({
       userId: user.id,
       password: this.hashPassword(password),
-    })
+    });
 
     return user;
   }
@@ -48,33 +66,16 @@ export class AuthenticationService {
   }
 
   async loginByEmail(email: string, password: string) {
-    const userRepo = await this.userReposiptoryGetter()
+    const user = await this.userService.verifyCredentials({email, password});
+    // convert a User object into a UserProfile object (reduced set of properties)
+    const userProfile = this.userService.convertToUserProfile(user);
 
-    const existUser = await userRepo.findOne({
-      where: {
-        email
-      },
-      include: [
-        {
-          relation: "credentials",
-        }
-      ]
-    })
-
-    if (!existUser) throw HttpErrors.BadRequest("emailNotFound");
-
-    const hashedPassword = existUser.credentials.password;
-    
-    const isPasswordMatch = bcrypt.compareSync(password, hashedPassword);
-
-    if (!isPasswordMatch) throw HttpErrors.BadRequest("credentialsInvalid");
-
-    const accessToken = jwt.sign(pick(existUser, "fullName", "type", "firstName", "lastName"), process.env.JWT_SECRET_KEY as string, {
-      expiresIn: 60 * 60 * 24 * 30 // 1 month
-    })
+    // create a JSON Web Token based on the user profile
+    const accessToken = await this.jwtService.generateToken(userProfile);
 
     return {
-      accessToken
-    }
+      accessToken,
+      currentUser: user,
+    };
   }
 }
