@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "yarn build",
+  "framework": null,
+  "installCommand": "yarn",
+  "outputDirectory": "dist",
   "builds": [
     {
       "src": "main.js",
