@@ -43,7 +43,6 @@ export class MongodbDataSource
     @inject('datasources.config.mongodb', {optional: true})
     dsConfig: object = config,
   ) {
-    console.log('aaaaa', updateConfig(dsConfig));
     super(updateConfig(dsConfig));
   }
 
