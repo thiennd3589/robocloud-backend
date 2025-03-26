@@ -6,7 +6,7 @@
     "loopback-application",
     "loopback"
   ],
-  "main": "dist/index.js",
+  "main": "main.js",
   "types": "dist/index.d.ts",
   "engines": {
     "node": "18 || 20 || 22"
@@ -29,6 +29,7 @@
     "openapi-spec": "node ./dist/openapi-spec",
     "prestart": "yarn run rebuild",
     "start": "node -r source-map-support/register .",
+    "start-prod": "./node_modules/.bin/env-cmd -f .env.production node main.js",
     "start-dev": "./node_modules/.bin/env-cmd -f .env.development concurrently \"yarn build:watch\" \"nodemon -r source-map-support/register .\"",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
     "rebuild": "yarn run clean && yarn run build"
