@@ -1,12 +1,9 @@
 import {UserService} from '@loopback/authentication';
 import {User} from '../models/user.model';
-import {UserCredential} from '../models/user-credential.model';
-import {Getter} from '@loopback/core';
 import {UserRepository} from '../repositories/user.repository';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import bcrypt from 'bcrypt';
-import {omit} from 'lodash';
 import {securityId, UserProfile} from '@loopback/security';
 
 interface Credentials {
@@ -14,27 +11,19 @@ interface Credentials {
   password: string;
 }
 
-type UserWithoutCredentials = Omit<User, 'credentials'>;
-
 export class AuthenticationUserService
-  implements
-    UserService<Omit<UserWithoutCredentials, 'credentials'>, Credentials>
+  implements UserService<User, Credentials>
 {
   constructor(
-    @repository.getter(UserRepository)
-    private userReposiptoryGetter: Getter<UserRepository>,
-  ) {
-    this.userReposiptoryGetter = userReposiptoryGetter;
-  }
+    @repository(UserRepository)
+    public userRepository: UserRepository,
+  ) {}
 
-  async verifyCredentials(
-    credentials: Credentials,
-  ): Promise<UserWithoutCredentials> {
+  async verifyCredentials(credentials: Credentials): Promise<User> {
     const {email, password} = credentials;
-    const userRepo = await this.userReposiptoryGetter();
     // ensure the user exists, and the password is correct
 
-    const existUser = await userRepo.findOne({
+    const existUser = await this.userRepository.findOne({
       where: {
         email,
       },
@@ -47,18 +36,26 @@ export class AuthenticationUserService
 
     if (!existUser) throw HttpErrors.BadRequest('emailNotFound');
 
-    const hashedPassword = existUser.credentials.password;
+    const hashedPassword = existUser.credentials?.password;
+
+    if (!hashedPassword) throw HttpErrors.BadRequest('credentialsInvalid');
 
     const isPasswordMatch = bcrypt.compareSync(password, hashedPassword);
 
     if (!isPasswordMatch) throw HttpErrors.BadRequest('credentialsInvalid');
 
-    return omit(existUser, 'credentials');
+    delete existUser.credentials;
+    return existUser;
   }
 
-  convertToUserProfile(
-    user: Omit<UserWithoutCredentials, 'credentials'>,
-  ): UserProfile {
-    return {...user, [securityId]: user.id};
+  convertToUserProfile(user: User): UserProfile {
+    const userProfile = {
+      ...user,
+      [securityId]: user.id,
+      fullName: user.fullName,
+      type: user.type,
+    };
+
+    return userProfile;
   }
 }

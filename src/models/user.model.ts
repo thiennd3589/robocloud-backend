@@ -44,7 +44,7 @@ export class User extends BaseModel {
   email: string;
 
   @hasOne(() => UserCredential, {name: 'credentials', keyTo: 'userId'})
-  credentials: UserCredential;
+  credentials?: UserCredential;
 
   @property({
     type: 'string',
@@ -54,5 +54,5 @@ export class User extends BaseModel {
 }
 
 export interface UserRelations {
-  credentials: UserCredential;
+  credentials?: UserCredential;
 }

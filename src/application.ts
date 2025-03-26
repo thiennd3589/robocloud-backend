@@ -1,5 +1,9 @@
 import {AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthenticationComponent} from '@loopback/authentication-jwt';
+import {
+  JWTAuthenticationComponent,
+  TokenServiceBindings,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {
@@ -13,6 +17,10 @@ import path from 'path';
 import {MySequence} from './sequence';
 import http from 'http';
 import {SocketIoServer} from './socket/socket.server';
+import {AuthenticationUserService} from './services/authentication-user.service';
+import {UserRepository} from './repositories/user.repository';
+import {UserCredentialRepository} from './repositories/user-credential.repository';
+import {JWTService} from './services/jwt-service';
 
 // import {WebsocketControllerBooter} from './socket/socket.booter';
 
@@ -46,9 +54,24 @@ export class RobocloudBackendApplication extends BootMixin(
     this.socketIoServer = new SocketIoServer(this, this.httpServer);
     this.bind('servers.http.server').to(this.httpServer);
 
-    // this.booters(WebsocketControllerBooter);
+    //JWT AUTHENTICATION SETUP
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(
+      AuthenticationUserService as any,
+    );
+    this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
+    this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to('604800'); //Expires in 7 days
+    this.bind(TokenServiceBindings.TOKEN_SECRET).to(
+      process.env.JWT_SECRET_KEY || 'WEAK_SECRET',
+    );
 
-    this.projectRoot = __dirname;
+    // Bind user and credentials repository
+    this.bind(UserServiceBindings.USER_REPOSITORY).toClass(UserRepository);
+    this.bind(UserServiceBindings.USER_CREDENTIALS_REPOSITORY).toClass(
+      UserCredentialRepository,
+    ),
+      // this.booters(WebsocketControllerBooter);
+
+      (this.projectRoot = __dirname);
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
       controllers: {

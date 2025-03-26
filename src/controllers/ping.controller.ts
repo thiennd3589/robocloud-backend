@@ -7,6 +7,7 @@ import {
   response,
   ResponseObject,
 } from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 
 /**
  * OpenAPI response for ping()
@@ -44,13 +45,14 @@ export class PingController {
   // Map to `GET /ping`
   @get('/ping')
   @response(200, PING_RESPONSE)
-  ping(): object {
+  @authenticate('jwt')
+  ping(
+    @inject(SecurityBindings.USER) currentUserProfile?: UserProfile,
+  ): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {
       greeting: 'Hello from LoopBack',
-      date: new Date(),
-      url: this.req.url,
-      headers: Object.assign({}, this.req.headers),
+      currentUserProfile,
     };
   }
 }

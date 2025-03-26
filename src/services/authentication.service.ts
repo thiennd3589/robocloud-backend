@@ -5,23 +5,20 @@ import {UserCredentialRepository} from '../repositories/user-credential.reposito
 import {HttpErrors} from '@loopback/rest';
 import bcrypt from 'bcrypt';
 import {Validation} from '../lib/validation';
-import jwt from 'jsonwebtoken';
-import {pick} from 'lodash';
 import {
-  MyUserService,
   TokenServiceBindings,
   UserServiceBindings,
 } from '@loopback/authentication-jwt';
-import {TokenService} from '@loopback/authentication';
 import {SecurityBindings, UserProfile} from '@loopback/security';
 import {AuthenticationUserService} from './authentication-user.service';
+import {JWTService} from './jwt-service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AuthenticationService {
   private readonly saltRounds = 11;
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)
-    public jwtService: TokenService,
+    public jwtService: JWTService,
     @inject(UserServiceBindings.USER_SERVICE)
     public userService: AuthenticationUserService,
     @inject(SecurityBindings.USER, {optional: true})
@@ -68,6 +65,7 @@ export class AuthenticationService {
   async loginByEmail(email: string, password: string) {
     const user = await this.userService.verifyCredentials({email, password});
     // convert a User object into a UserProfile object (reduced set of properties)
+    console.log(user);
     const userProfile = this.userService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
