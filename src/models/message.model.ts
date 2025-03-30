@@ -1,24 +1,46 @@
 import {belongsTo, model, property} from '@loopback/repository';
 import {BaseModel} from './base.model';
 import {Conversation} from './conversation.model';
-import {User} from './user.model';
+import {ChatRole} from '../types/chat';
+
+@model()
+class ContentPart {
+  @property({
+    type: 'string',
+  })
+  text: string;
+}
+
+@model()
+class ChatContent {
+  @property({
+    type: 'array',
+    itemType: ContentPart,
+  })
+  parts: Array<ContentPart>;
+}
 
 @model({
   settings: {
     strict: false,
+    indexes: {
+      keys: {createdAt: -1},
+    },
   },
 })
 export class Message extends BaseModel {
   @belongsTo(() => Conversation)
   conversationId: string;
 
-  @belongsTo(() => User)
-  userId: string;
+  @property({
+    type: ChatContent,
+  })
+  content: ChatContent;
 
   @property({
     type: 'string',
   })
-  content: string;
+  role: ChatRole;
 }
 
-export interface ConversationRelations {}
+export interface MessageRelations {}

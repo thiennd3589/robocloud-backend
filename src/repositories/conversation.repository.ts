@@ -5,10 +5,6 @@ import {
   repository,
 } from '@loopback/repository';
 import {Getter, inject} from '@loopback/core';
-import {
-  UserCredential,
-  UserCredentialRelations,
-} from '../models/user-credential.model';
 import {User} from '../models/user.model';
 import {UserRepository} from './user.repository';
 import {

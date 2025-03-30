@@ -65,7 +65,6 @@ export class AuthenticationService {
   async loginByEmail(email: string, password: string) {
     const user = await this.userService.verifyCredentials({email, password});
     // convert a User object into a UserProfile object (reduced set of properties)
-    console.log(user);
     const userProfile = this.userService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
