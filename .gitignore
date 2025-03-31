@@ -69,3 +69,5 @@ typings/
 # env
 .env.development
 .env.production
+
+sketches/

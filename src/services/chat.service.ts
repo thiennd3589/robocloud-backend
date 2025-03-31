@@ -5,6 +5,7 @@ import {BindingScope, injectable, service} from '@loopback/core';
 import {LlmService} from './llm.service';
 import {HttpErrors} from '@loopback/rest';
 import {ChatRole} from '../types/chat';
+import {CompileService} from './compile.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class ChatService {
@@ -16,9 +17,11 @@ export class ChatService {
     private messageRepositoryGetter: Getter<MessageRespository>,
     @service(LlmService)
     private llmService: LlmService,
+    @service(CompileService) private compileService: CompileService,
   ) {}
 
   async createChat(input: string, conversationId: string, userId: string) {
+    console.log('====GENERATE RESPONSE=====');
     let finalConversationId = conversationId;
     const [conversationRepo, messageRepo] = await Promise.all([
       this.conversationRepositoryGetter(),
@@ -43,12 +46,15 @@ export class ChatService {
       this.llmService.generateContent(input),
     ]);
 
-    return messageRepo.create({
+    const message = await messageRepo.create({
       conversationId: finalConversationId,
       content: {...modelResponse.data.candidates[0].content},
       role: ChatRole.MODEL,
       createdAt: new Date(),
     });
+
+    await this.compileService.extractCode(message);
+    return message;
   }
 
   async createChatWithoutSave(input: string) {
