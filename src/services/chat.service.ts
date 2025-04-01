@@ -70,25 +70,26 @@ export class ChatService {
       };
     } catch (error) {
       if (message) {
-        await messageRepo.updateById(message.id, {
-          content: {
-            parts: [
-              {
-                text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
-              },
-            ],
-          },
-        });
-        return {
-          ...message,
-          content: {
-            parts: [
-              {
-                text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
-              },
-            ],
-          },
-        };
+        return message;
+        // await messageRepo.updateById(message.id, {
+        //   content: {
+        //     parts: [
+        //       {
+        //         text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
+        //       },
+        //     ],
+        //   },
+        // });
+        // return {
+        //   ...message,
+        //   content: {
+        //     parts: [
+        //       {
+        //         text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
+        //       },
+        //     ],
+        //   },
+        // };
       }
 
       throw HttpErrors.BadRequest('somethingWrongWhenResponse');
