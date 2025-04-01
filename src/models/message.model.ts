@@ -41,6 +41,11 @@ export class Message extends BaseModel {
     type: 'string',
   })
   role: ChatRole;
+
+  @property({
+    type: 'boolean',
+  })
+  compiled: boolean;
 }
 
 export interface MessageRelations {}

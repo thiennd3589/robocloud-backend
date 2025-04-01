@@ -6,6 +6,7 @@ import {LlmService} from './llm.service';
 import {HttpErrors} from '@loopback/rest';
 import {ChatRole} from '../types/chat';
 import {CompileService} from './compile.service';
+import {Message} from '../models/message.model';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class ChatService {
@@ -21,40 +22,56 @@ export class ChatService {
   ) {}
 
   async createChat(input: string, conversationId: string, userId: string) {
-    console.log('====GENERATE RESPONSE=====');
-    let finalConversationId = conversationId;
-    const [conversationRepo, messageRepo] = await Promise.all([
-      this.conversationRepositoryGetter(),
-      this.messageRepositoryGetter(),
-    ]);
-    if (conversationId === this.newConversationId) {
-      const newConversation = await conversationRepo.create({
-        userId,
-      });
-      finalConversationId = newConversation.id;
-    }
+    let message: Message | null = null;
+    try {
+      console.log('====GENERATE RESPONSE=====');
+      let finalConversationId = conversationId;
+      const [conversationRepo, messageRepo] = await Promise.all([
+        this.conversationRepositoryGetter(),
+        this.messageRepositoryGetter(),
+      ]);
+      if (conversationId === this.newConversationId) {
+        const newConversation = await conversationRepo.create({
+          userId,
+        });
+        finalConversationId = newConversation.id;
+      }
 
-    const [_, modelResponse] = await Promise.all([
-      messageRepo.create({
-        createdAt: new Date(),
+      const [_, modelResponse] = await Promise.all([
+        messageRepo.create({
+          createdAt: new Date(),
+          conversationId: finalConversationId,
+          role: ChatRole.USER,
+          content: {
+            parts: [{text: input}],
+          },
+        }),
+        this.llmService.generateContent(input),
+      ]);
+
+      message = await messageRepo.create({
         conversationId: finalConversationId,
-        role: ChatRole.USER,
-        content: {
-          parts: [{text: input}],
-        },
-      }),
-      this.llmService.generateContent(input),
-    ]);
+        content: {...modelResponse.data.candidates[0].content},
+        role: ChatRole.MODEL,
+        createdAt: new Date(),
+      });
 
-    const message = await messageRepo.create({
-      conversationId: finalConversationId,
-      content: {...modelResponse.data.candidates[0].content},
-      role: ChatRole.MODEL,
-      createdAt: new Date(),
-    });
+      await this.compileService.extractCode(message);
 
-    await this.compileService.extractCode(message);
-    return message;
+      await messageRepo.updateById(message.id, {
+        compiled: true,
+      });
+
+      return {
+        ...message,
+        compiled: true,
+      };
+    } catch (error) {
+      console.log({error});
+      if (message) {
+        return message;
+      }
+    }
   }
 
   async createChatWithoutSave(input: string) {
