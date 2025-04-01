@@ -4,7 +4,7 @@ import {ConversationRepository} from '../repositories/conversation.repository';
 import {get, param, post, requestBody} from '@loopback/rest';
 import {authenticate} from '@loopback/authentication';
 import {Conversation} from '../models/conversation.model';
-import {SecurityBindings, UserProfile} from '@loopback/security';
+import {SecurityBindings} from '@loopback/security';
 import {User} from '../models/user.model';
 
 const basePath = '/conversation';
@@ -26,6 +26,7 @@ export class ConversationController {
     return conversationRepository.find({
       ...baseFilter,
       order: ['_id DESC'],
+      limit: 15,
       where: {
         ...baseFilter.where,
         userId: currentUserProfile.id,

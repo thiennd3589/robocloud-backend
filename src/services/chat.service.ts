@@ -23,13 +23,15 @@ export class ChatService {
 
   async createChat(input: string, conversationId: string, userId: string) {
     let message: Message | null = null;
+    const [conversationRepo, messageRepo] = await Promise.all([
+      this.conversationRepositoryGetter(),
+      this.messageRepositoryGetter(),
+    ]);
+
     try {
       console.log('====GENERATE RESPONSE=====');
       let finalConversationId = conversationId;
-      const [conversationRepo, messageRepo] = await Promise.all([
-        this.conversationRepositoryGetter(),
-        this.messageRepositoryGetter(),
-      ]);
+
       if (conversationId === this.newConversationId) {
         const newConversation = await conversationRepo.create({
           userId,
@@ -67,10 +69,29 @@ export class ChatService {
         compiled: true,
       };
     } catch (error) {
-      console.log({error});
       if (message) {
-        return message;
+        await messageRepo.updateById(message.id, {
+          content: {
+            parts: [
+              {
+                text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
+              },
+            ],
+          },
+        });
+        return {
+          ...message,
+          content: {
+            parts: [
+              {
+                text: 'Đã có lỗi xảy ra khi xử lý yêu cầu.',
+              },
+            ],
+          },
+        };
       }
+
+      throw HttpErrors.BadRequest('somethingWrongWhenResponse');
     }
   }
 
