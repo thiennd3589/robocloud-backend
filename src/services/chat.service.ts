@@ -159,14 +159,10 @@ export class ChatService {
     // Tách markdown thành các câu bằng dấu chấm, chấm hỏi, hoặc chấm than
     let sentences = markdown.split(/(?<=[.!?])\s+/);
 
-    console.log('markdown', markdown);
-
     // Lấy câu cuối cùng (nếu có) và chuẩn hóa chữ thường
     let lastSentence = (
       sentences[sentences.length - 1] + sentences[sentences.length - 2]
     ).toLowerCase();
-
-    console.log(lastSentence);
 
     // Kiểm tra xem câu cuối có chứa từ khóa không (cũng chuyển về chữ thường)
     return lastSentence.includes(keyword.toLowerCase());
