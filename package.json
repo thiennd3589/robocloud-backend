@@ -30,7 +30,7 @@
     "prestart": "yarn run rebuild",
     "start": "node index.js",
     "start-prod": "./node_modules/.bin/env-cmd -f .env.production node main.js",
-    "start-dev": "./node_modules/.bin/env-cmd -f .env.development concurrently \"node -r source-map-support/register .\"",
+    "start-dev": "./node_modules/.bin/env-cmd -f .env.development concurrently \"yarn build:watch \" \"node -r source-map-support/register .\"",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
     "rebuild": "yarn run clean && yarn run build"
   },
@@ -47,6 +47,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@google/genai": "^0.7.0",
     "@loopback/authentication": "^11.0.12",
     "@loopback/authentication-jwt": "^0.15.12",
     "@loopback/boot": "^7.0.7",

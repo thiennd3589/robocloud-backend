@@ -1,4 +1,3 @@
-import {authenticate} from '@loopback/authentication';
 import {inject, service} from '@loopback/core';
 import {
   Request,
@@ -9,11 +8,13 @@ import {
   post,
   param,
   HttpErrors,
+  requestBody,
 } from '@loopback/rest';
-import {SecurityBindings, UserProfile} from '@loopback/security';
 import {CompileService} from '../services/compile.service';
 import {repository} from '@loopback/repository';
 import {MessageRespository} from '../repositories/message.repository';
+import {LlmService} from '../services/llm.service';
+import {Content} from '@google/genai';
 
 /**
  * OpenAPI response for ping()
@@ -50,20 +51,22 @@ export class PingController {
     @inject(RestBindings.Http.REQUEST) private req: Request,
     @service(CompileService) private compileService: CompileService,
     @repository(MessageRespository) private messageRepo: MessageRespository,
+    @service(LlmService) private LlmService: LlmService,
   ) {}
 
   // Map to `GET /ping`
-  @get('/ping')
+  @post('/ping')
   @response(200, PING_RESPONSE)
-  @authenticate('jwt')
+  // @authenticate('jwt')
   ping(
-    @inject(SecurityBindings.USER) currentUserProfile?: UserProfile,
+    @requestBody()
+    body: {
+      data: Content[];
+      input: string;
+    },
   ): object {
     // Reply with a greeting, the current time, the url, and request headers
-    return {
-      greeting: 'Hello from LoopBack',
-      currentUserProfile,
-    };
+    return this.LlmService.generateFromQuestion(body.data, body.input);
   }
 
   @get('/extract-code/{messageId}')

@@ -1,7 +1,7 @@
 import {belongsTo, model, property} from '@loopback/repository';
 import {BaseModel} from './base.model';
 import {Conversation} from './conversation.model';
-import {ChatRole} from '../types/chat';
+import {ChatRole, ChatType} from '../types/chat';
 
 @model()
 class ContentPart {
@@ -24,7 +24,9 @@ class ChatContent {
   settings: {
     strict: false,
     indexes: {
-      keys: {createdAt: -1},
+      messageCreatedAt: {
+        keys: {createdAt: -1, conversationId: 1},
+      },
     },
   },
 })
@@ -43,9 +45,20 @@ export class Message extends BaseModel {
   role: ChatRole;
 
   @property({
+    type: 'string',
+    default: ChatType.QUESTION,
+  })
+  type: ChatType;
+
+  @property({
     type: 'boolean',
   })
-  compiled: boolean;
+  compiled?: boolean;
+
+  @property({
+    type: 'boolean',
+  })
+  canCompiled?: boolean;
 }
 
 export interface MessageRelations {}

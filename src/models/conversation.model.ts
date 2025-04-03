@@ -6,7 +6,9 @@ import {User} from './user.model';
   settings: {
     strict: false,
     indexes: {
-      keys: {createdAt: -1},
+      conversationCreatedAt: {
+        keys: {createdAt: -1, userId: -1},
+      },
     },
   },
 })
@@ -18,6 +20,13 @@ export class Conversation extends BaseModel {
     type: 'string',
   })
   title: string;
+
+  //Đây là thuộc tính để đánh dấu thời gian cuối cùng mà người dùng click Nạp code
+  //Thuộc tính này dùng để truy vấn history cho model AI
+  @property({
+    type: 'Date',
+  })
+  completedDate?: Date;
 }
 
 export interface ConversationRelations {}

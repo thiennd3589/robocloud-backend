@@ -93,7 +93,7 @@ export class RobocloudBackendApplication extends BootMixin(
       services: {
         services: {
           dirs: ['services'],
-          extensions: ['.service.js'],
+          extensions: ['.service.js', '.service.ts'],
           nested: true,
         },
       },

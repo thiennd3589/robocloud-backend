@@ -1,16 +1,12 @@
-import {Getter, repository} from '@loopback/repository';
-import {MessageRespository} from '../repositories/message.repository';
 import {Message} from '../models/message.model';
 import fs from 'fs';
 import path from 'path';
-import {execSync, exec} from 'child_process';
-import {error} from 'console';
+import {exec} from 'child_process';
+import {BindingScope, injectable} from '@loopback/core';
 
+@injectable({scope: BindingScope.SINGLETON})
 export class CompileService {
-  constructor(
-    @repository.getter(MessageRespository)
-    private messageRepositoryGetter: Getter<MessageRespository>,
-  ) {}
+  constructor() {}
 
   async extractCode(message: Message) {
     const text = message.content?.parts[0]?.text;
@@ -19,7 +15,9 @@ export class CompileService {
      * Trích xuất các khối mã từ văn bản.
      */
     console.log('======Extract Code====');
-    const regex = /`(?:arduino|cpp|python)?\n([\s\S]*?)\n`/g;
+    const regex = /```(?:arduino|cpp|python|c\+\+|c)?\n?([\s\S]+?)```/g;
+
+    // const regex = /`(?:arduino|cpp|python)?\n([\s\S]*?)\n`/g;
     let codeBlocks = [];
     let match;
 

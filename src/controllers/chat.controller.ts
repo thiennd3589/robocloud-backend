@@ -1,7 +1,7 @@
 import {inject, service} from '@loopback/core';
 import {post, requestBody, get, param} from '@loopback/rest';
 import {ChatService} from '../services/chat.service';
-import {SecurityBindings, UserProfile} from '@loopback/security';
+import {SecurityBindings} from '@loopback/security';
 import {authenticate} from '@loopback/authentication';
 
 const basePath = '/chat';
@@ -58,8 +58,11 @@ export class ChatController {
               conversationId: {
                 type: 'string',
               },
+              isGenerateCode: {
+                type: 'boolean',
+              },
             },
-            required: ['input', 'required'],
+            required: ['input', 'conversationId'],
           },
         },
       },
@@ -67,11 +70,17 @@ export class ChatController {
     body: {
       input: string;
       conversationId: string;
+      isGenerateCode: boolean;
     },
     @inject(SecurityBindings.USER) currentUser: any,
   ) {
-    const {input, conversationId} = body;
-    return this.chatService.createChat(input, conversationId, currentUser.id);
+    const {input, conversationId, isGenerateCode} = body;
+    return this.chatService.createResponseForQuestion(
+      input,
+      conversationId,
+      currentUser.id,
+      !!isGenerateCode,
+    );
   }
 
   @get(`${basePath}/{conversationId}`)
