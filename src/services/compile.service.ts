@@ -42,18 +42,14 @@ export class CompileService {
         error => {
           if (error) {
             console.log('====COMPILE ERROR=====');
-            console.log(error);
-            reject();
+            // console.log(,error.message);
+            reject(error);
           }
 
           resolve(true);
         },
       );
     });
-
-    // execSync(
-    //   `cd ${dir} && arduino-cli compile --fqbn arduino:avr:uno --build-path ./build`,
-    // );
 
     console.log('======Compiled====');
   }

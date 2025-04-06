@@ -37,7 +37,11 @@ export class ChatService {
     ]);
 
     try {
-      console.log('====GENERATE RESPONSE=====');
+      console.log(
+        isGenerateCode
+          ? '====GENERATE CODE====='
+          : '====GENERATE RESPONSE=====',
+      );
 
       let isNewConversation = conversationId === this.newConversationId;
       let finalConversationId = conversationId;

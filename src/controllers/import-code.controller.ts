@@ -50,7 +50,12 @@ export class ImportCodeController {
 
     const messageId = message.id;
 
-    await this.compileService.extractCode(message);
+    try {
+      await this.compileService.extractCode(message);
+    } catch (error) {
+      const message = error.message.replace(/(?:\/[\w.-]+)+/g, '');
+      throw HttpErrors.BadRequest(message);
+    }
 
     const sketchesPath = '../../sketches';
 
